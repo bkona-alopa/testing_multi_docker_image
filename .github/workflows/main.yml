@@ -43,7 +43,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: ./${{ matrix.builds.docker_file_name }}
+          context: .
+          file: ${{ matrix.builds.docker_file_name }}
           push: true
           tags: |
             ${{ matrix.builds.ecr_repo_name }}:${{ github.sha }}

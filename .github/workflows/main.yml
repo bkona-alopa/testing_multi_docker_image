@@ -1,0 +1,51 @@
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  BuildandPush:
+    name: Build And Push
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        builds:
+          [
+            {
+              ecr_repo_name: "balamani3010/api-ai",
+              docker_file_name: "Dockerfile",
+            },
+            {
+              ecr_repo_name: "balamani3010/scheduled_task_ai",
+              docker_file_name: "Dockerfile_Ingestion",
+            },
+          ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: ./${{ matrix.builds.docker_file_name }}
+          push: true
+          tags: |
+            ${{ matrix.builds.ecr_repo_name }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

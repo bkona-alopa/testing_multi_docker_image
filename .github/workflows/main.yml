@@ -41,8 +41,13 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: test
+        id: test
         run: |
           echo "DOCKERHUB_USERNAME=$(echo -n ${{ secrets.DOCKERHUB_USERNAME }} | base64 -w 0)" >> "$GITHUB_OUTPUT"
+
+      - name: test output
+        run: |
+          echo "DOCKERHUB_USERNAME = ${{ steps.test.outputs.DOCKERHUB_USERNAME }}"
 
       - name: Build and push
         uses: docker/build-push-action@v6
